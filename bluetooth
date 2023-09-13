@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# Function to check if Bluetooth is powered on
+check_bluetooth_power() {
+  if [ "$(bluetoothctl show | grep "Powered: yes")" ]; then
+    echo "Bluetooth is already powered on."
+  else
+    echo "Powering on Bluetooth..."
+    bluetoothctl power on
+  fi
+}
+
+# Function to check if the Bluetooth service is running
+check_bluetooth_service() {
+  if systemctl is-active --quiet bluetooth; then
+    echo "Bluetooth service is running."
+  else
+    echo "Starting Bluetooth service..."
+    systemctl start bluetooth
+  fi
+}
+
+# Function to list available devices
+list_devices() {
+  bluetoothctl devices
+}
+
+# Function to connect to a specific device
+connect_to_device() {
+  local device="$1"
+  
+  if [ "$(bluetoothctl info "$device" | grep "Connected: yes")" ]; then
+    echo "Device $device is already connected."
+  else
+    echo "Connecting to device $device..."
+    bluetoothctl connect "$device"
+  fi
+}
+
+# Function to disconnect all connected devices
+disconnect_devices() {
+  bluetoothctl disconnect
+}
+
+# Function to power off Bluetooth
+power_off_bluetooth() {
+  echo "Powering off Bluetooth..."
+  bluetoothctl power off
+}
+
+# Check for command-line arguments
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 [start|stop]"
+  exit 1
+fi
+
+case "$1" in
+  "start")
+    check_bluetooth_service
+    check_bluetooth_power
+    devices_list=$(list_devices)
+    if [ -z "$devices_list" ]; then
+      echo "No paired devices found."
+    else
+      # Get the first device from the list (you can modify this logic)
+      first_device=$(echo "$devices_list" | head -n 1 | awk '{print $2}')
+      connect_to_device "$first_device"
+    fi
+    ;;
+  "stop")
+    disconnect_devices
+    power_off_bluetooth
+    ;;
+  *)
+    echo "Invalid argument. Usage: $0 [start|stop]"
+    exit 1
+    ;;
+esac

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+#generator for project
+
+dir="$(dirname "$(readlink -f "$0")")"
+filepath="$dir/.pgen/tsconfig.json"
+if [ "$1" = "ts" ]; then
+    cp $filepath .
+else
+    echo "run: pgen <type>"
+fi

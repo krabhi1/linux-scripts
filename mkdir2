@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Function to create directories
+create_directories() {
+  local base_path="$1"
+  shift # Remove the first argument (base_path)
+
+  for dir_name in "$@"; do
+    dir_path="${base_path}/${dir_name}"
+    mkdir -p "$dir_path"
+    echo "Created directory: $dir_path"
+  done
+}
+
+# Check if the required arguments are provided
+if [ $# -lt 2 ]; then
+  echo "Error: missing operand"
+  echo "Usage: <target_path> <dir1> <dir2> <dir3> ..."
+  echo "Example: mkdir2 ./ dir1 dir2"
+  echo "Example: mkdir2 ./child dir1 dir2"
+  exit 1
+fi
+
+# First argument is the target path
+target_path="$1"
+shift # Remove the first argument (target_path)
+
+# Call the function to create the directories
+create_directories "$target_path" "$@"
