@@ -3,10 +3,6 @@
 # Get input from the user
 echo ------- .desktop file generator ----------
 read -p "Enter file name (without extension): " filename
-read -p "Enter app name: " appname
-read -p "Enter icon path: " iconpath
-read -p "Enter executable path: " exepath
-
 desktop_file="${filename}.desktop"
 
 # Check if the desktop file already exists
@@ -17,6 +13,11 @@ if [ -e "$desktop_file" ]; then
         exit 1
     fi
 fi
+
+read -p "Enter app name: " appname
+read -p "Enter icon path: " iconpath
+read -p "Enter executable path: " exepath
+
 
 
 # Create the .desktop file
