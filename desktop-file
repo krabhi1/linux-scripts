@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Get input from the user
+echo ------- .desktop file generator ----------
+read -p "Enter file name (without extension): " filename
+read -p "Enter app name: " appname
+read -p "Enter icon path: " iconpath
+read -p "Enter executable path: " exepath
+
+desktop_file="${filename}.desktop"
+
+# Check if the desktop file already exists
+if [ -e "$desktop_file" ]; then
+    read -p "Desktop file already exists. Do you want to overwrite it? (y/n): " overwrite
+    if [ "$overwrite" != "y" ]; then
+        echo "Aborted. Desktop file not created."
+        exit 1
+    fi
+fi
+
+
+# Create the .desktop file
+cat <<EOL > "$desktop_file"
+[Desktop Entry]
+Type=Application
+Exec=$(realpath "$exepath")
+Icon=$(realpath "$iconpath")
+Terminal=false
+Name=${appname}
+EOL
+
+chmod +x "$desktop_file"
+cp "${filename}.desktop" ~/.local/share/applications/
+echo "Desktop file '$desktop_file' created successfully."
+
