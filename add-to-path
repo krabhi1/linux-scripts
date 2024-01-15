@@ -1,0 +1,39 @@
+#!/bin/bash
+
+#take path from args else show usage
+if [ $# -eq 0 ]; then
+    echo "Usage: add-to-path <path_to_add>"
+    exit 1
+fi
+
+
+full_path_to_add=$(realpath $1)
+
+# Check if zsh is installed
+if command -v zsh &> /dev/null
+then
+    echo -e "export PATH=\"\$PATH:$full_path_to_add\"" >> ~/.zshrc
+    echo "Path added to .zshrc"
+fi
+
+
+# Check if bash is installed
+if command -v bash &> /dev/null
+then
+    echo -e "export PATH=\"\$PATH:$full_path_to_add\"" >> ~/.bashrc
+    echo "Path added to .bashrc"
+fi
+
+# # Detect the shell
+# shell=$(echo $SHELL)
+
+# # Add the path to the appropriate file with 
+# if [[ "$shell" == *"bash"* ]]; then
+#     echo -e "export PATH=\"\$PATH:$full_path_to_add\"" >> ~/.bashrc 
+#     echo "Path added to .bashrc"
+# else [[ "$shell" == *"zsh"* ]]; then
+#     echo -e "export PATH=\"\$PATH:$full_path_to_add\"" >> ~/.zshrc
+#     echo "Path added to .zshrc"
+# else
+#     echo "Unsupported shell. Only bash and zsh are supported."
+# fi
