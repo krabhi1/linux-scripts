@@ -1,36 +1,90 @@
 #!/bin/bash
+help_fun() {
+    echo "Usage: desktop-file [OPTIONS]"
+    echo "Options:"
+    echo "--list : List all desktop files"
+    echo "--delete [name] : Delete a desktop file"
+    echo "--new : Create a new desktop file args: --path <path>"
+    echo "--help : Show this help message"
+}
 
-# Get input from the user
-echo ------- .desktop file generator ----------
-read -p "Enter file name (without extension): " filename
-desktop_file="${filename}.desktop"
+create_desktop_file() {
+    local desktop_file="$1"
+    local exepath="$2"
+    local iconpath="$3"
+    local appname="$4"
 
-# Check if the desktop file already exists
-if [ -e "$desktop_file" ]; then
-    read -p "Desktop file already exists. Do you want to overwrite it? (y/n): " overwrite
-    if [ "$overwrite" != "y" ]; then
-        echo "Aborted. Desktop file not created."
-        exit 1
-    fi
+    cat <<EOL >"$desktop_file"
+    [Desktop Entry]
+    Type=Application
+    Exec=$(realpath "$exepath")
+    Icon=$(realpath "$iconpath")
+    Terminal=false
+    Name=${appname}
+EOL
+}
+
+
+
+# if no args are provided, show help
+if [ $# -eq 0 ]; then
+    help_fun
+    exit 0
 fi
 
-read -p "Enter app name: " appname
-read -p "Enter icon path: " iconpath
-read -p "Enter executable path: " exepath
+# Check if the user wants to list all desktop files
+if [ "$1" == "--list" ]; then
+    ls ~/.local/share/applications/*.desktop
+    exit 0
+fi
 
+# Check if the user wants to delete a desktop file
+if [ "$1" == "--delete" ]; then
+    if [ -z "$2" ]; then
+        echo "Please provide the name of the desktop file to delete."
+        exit 1
+    fi
+    rm ~/.local/share/applications/"$2".desktop
+    echo "Desktop file '$2.desktop' deleted successfully."
+    exit 0
+fi
 
+# Check if the user wants help
+if [ "$1" == "--help" ]; then
+    help_fun
+fi
 
-# Create the .desktop file
-cat <<EOL > "$desktop_file"
-[Desktop Entry]
-Type=Application
-Exec=$(realpath "$exepath")
-Icon=$(realpath "$iconpath")
-Terminal=false
-Name=${appname}
-EOL
+# Check if the user wants to create a new desktop file
+if [ "$1" == "--new" ]; then
+    # Get input from the user
+    default_path="~/.local/share/applications/"
+    # check --path argument
+    if [ "$2" == "--path" ]; then
+        default_path="$(realpath "$3")/"
+    fi
+    echo ------- .desktop file generator ----------
+    read -p "Enter file name (without extension): " filename
+    desktop_file="${filename}.desktop"
 
-chmod +x "$desktop_file"
-cp "${filename}.desktop" ~/.local/share/applications/
-echo "Desktop file '$desktop_file' created successfully."
+    # Check if the desktop file already exists
+    if [ -e "$desktop_file" ]; then
+        read -p "Desktop file already exists. Do you want to overwrite it? (y/n): " overwrite
+        if [ "$overwrite" != "y" ]; then
+            echo "Aborted. Desktop file not created."
+            exit 1
+        fi
+    fi
+
+    read -p "Enter app name: " appname
+    read -p "Enter icon path: " iconpath
+    read -p "Enter executable path: " exepath
+
+    # Create the .desktop file
+    create_desktop_file "$desktop_file" "$exepath" "$iconpath" "$appname"
+
+    chmod +x "$desktop_file"
+    cp "${filename}.desktop" "$default_path"
+    echo "Desktop file '$desktop_file' created successfully."
+    exit 0
+fi
 

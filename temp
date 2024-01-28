@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Initialize variables
+filename=""
+appname=""
+iconpath=""
+exepath=""
+
+# Parse command-line arguments
+while (( "$#" )); do
+  case "$1" in
+    --new)
+      shift
+      filename="$1"
+      shift
+      ;;
+    --appname)
+      shift
+      appname="$1"
+      shift
+      ;;
+    --iconpath)
+      shift
+      iconpath="$1"
+      shift
+      ;;
+    --exepath)
+      shift
+      exepath="$1"
+      shift
+      ;;
+    *)
+      echo "Error: Invalid argument"
+      exit 1
+      ;;
+  esac
+done
+
+# print all values
+echo "filename: $filename"
+echo "appname: $appname"
+echo "iconpath: $iconpath"
+echo "exepath: $exepath"

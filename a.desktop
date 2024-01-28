@@ -1,0 +1,6 @@
+    [Desktop Entry]
+    Type=Application
+    Exec=/home/abhishek/.global/linux-scripts/a
+    Icon=/home/abhishek/.global/linux-scripts/a
+    Terminal=false
+    Name=a
