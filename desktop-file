@@ -24,8 +24,6 @@ create_desktop_file() {
 EOL
 }
 
-
-
 # if no args are provided, show help
 if [ $# -eq 0 ]; then
     help_fun
@@ -38,14 +36,15 @@ if [ "$1" == "--list" ]; then
     exit 0
 fi
 
-# Check if the user wants to delete a desktop file
+# Check if the user wants to delete a desktop files 
+#like --delete  a b c
+#delete multiple files
 if [ "$1" == "--delete" ]; then
-    if [ -z "$2" ]; then
-        echo "Please provide the name of the desktop file to delete."
-        exit 1
-    fi
-    rm ~/.local/share/applications/"$2".desktop
-    echo "Desktop file '$2.desktop' deleted successfully."
+    shift
+    while (( "$#" )); do
+        rm ~/.local/share/applications/"$1".desktop
+        shift
+    done
     exit 0
 fi
 
@@ -57,14 +56,14 @@ fi
 # Check if the user wants to create a new desktop file
 if [ "$1" == "--new" ]; then
     # Get input from the user
-    default_path="~/.local/share/applications/"
+    default_path=~/.local/share/applications/
     # check --path argument
     if [ "$2" == "--path" ]; then
         default_path="$(realpath "$3")/"
     fi
     echo ------- .desktop file generator ----------
-    read -p "Enter file name (without extension): " filename
-    desktop_file="${filename}.desktop"
+    read -p "Enter app name: " appname
+    desktop_file="${appname}.desktop"
 
     # Check if the desktop file already exists
     if [ -e "$desktop_file" ]; then
@@ -75,7 +74,6 @@ if [ "$1" == "--new" ]; then
         fi
     fi
 
-    read -p "Enter app name: " appname
     read -p "Enter icon path: " iconpath
     read -p "Enter executable path: " exepath
 
@@ -83,8 +81,9 @@ if [ "$1" == "--new" ]; then
     create_desktop_file "$desktop_file" "$exepath" "$iconpath" "$appname"
 
     chmod +x "$desktop_file"
-    cp "${filename}.desktop" "$default_path"
-    echo "Desktop file '$desktop_file' created successfully."
+    echo "path" $default_path
+    echo "desktop_file" $desktop_file
+    cp "$desktop_file" "$default_path"
+    echo "Desktop file '$desktop_file' created successfully. to path '$default_path'"
     exit 0
 fi
-
