@@ -13,14 +13,27 @@ create_desktop_file() {
     local exepath="$2"
     local iconpath="$3"
     local appname="$4"
+    local StartupWMClass="$5"
 
     cat <<EOL >"$desktop_file"
-    [Desktop Entry]
-    Type=Application
-    Exec=$(realpath "$exepath")
-    Icon=$(realpath "$iconpath")
-    Terminal=false
-    Name=${appname}
+[Desktop Entry]
+Type=Application
+Exec=$(realpath "$exepath")
+Icon=$(realpath "$iconpath")
+Terminal=false
+Name=${appname}
+Actions=new-window
+StartupNotify=false
+StartupWMClass=${StartupWMClass}
+
+[Desktop Action new-window]
+Name=New Window
+Exec=$(realpath "$exepath")
+Icon=$(realpath "$iconpath")
+Terminal=false
+StartupNotify=false
+StartupWMClass=${StartupWMClass}
+
 EOL
 }
 
@@ -32,6 +45,11 @@ fi
 
 # Check if the user wants to list all desktop files
 if [ "$1" == "--list" ]; then
+    #if no desktop files found
+    if [ ! -e ~/.local/share/applications/*.desktop ]; then
+        echo "No desktop files found."
+        exit 0
+    fi
     ls ~/.local/share/applications/*.desktop
     exit 0
 fi
@@ -42,7 +60,14 @@ fi
 if [ "$1" == "--delete" ]; then
     shift
     while (( "$#" )); do
+        #check file exists
+        if [ ! -e ~/.local/share/applications/"$1".desktop ]; then
+            echo "Desktop file '$1.desktop' not found."
+            exit 1
+        fi
         rm ~/.local/share/applications/"$1".desktop
+        #print the deleted file
+        echo "Deleted $1.desktop"
         shift
     done
     exit 0
@@ -63,7 +88,8 @@ if [ "$1" == "--new" ]; then
     fi
     echo ------- .desktop file generator ----------
     read -p "Enter app name: " appname
-    desktop_file="${appname}.desktop"
+    #convert appname spaces to hyphen
+    desktop_file="$(echo "$appname" | tr ' ' '-').desktop"
 
     # Check if the desktop file already exists
     if [ -e "$desktop_file" ]; then
@@ -76,9 +102,14 @@ if [ "$1" == "--new" ]; then
 
     read -p "Enter icon path: " iconpath
     read -p "Enter executable path: " exepath
+    #StartupWMClass input
+    echo "To find the StartupWMClass name, run the following command:"
+    echo "xprop | grep WM_CLASS"
+    echo "Then, click on the window of the app you want to get the class of."
+    read -p "Enter StartupWMClass name: " StartupWMClass
 
     # Create the .desktop file
-    create_desktop_file "$desktop_file" "$exepath" "$iconpath" "$appname"
+    create_desktop_file "$desktop_file" "$exepath" "$iconpath" "$appname" "$StartupWMClass"
 
     chmod +x "$desktop_file"
     echo "path" $default_path
