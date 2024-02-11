@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# mv all $name files to a new directory called $name
+#first print all the files that will be moved and ask for confirmation
+#then move the files
+
+#command is like utils <command_type> --args
+
+command_types=("sprite-list")
+#sprite-list --name <name>  --src <src_dir> --dest <dest_dir>
+#src_dir is optional, if not provided, it will be the current directory
+#dest_dir is optional, if not provided, it will new directory called <name> in the current directory
+
+function sprite-list() {
+    name=$1
+    if [ -z "$name" ]; then
+        echo "Usage: sprite-list --name <name>  --src <src_dir> --dest <dest_dir>"
+        exit 1
+    fi
+
+    # if no files found, it will print nothing found and exit
+    if [ ! -e *$name*.png ]; then
+        echo "No files found with name: $name"
+        exit 0
+    fi
+
+    ls *$name*.png
+
+    #confirm if the user wants to move the files
+    read -p "Confirm ? (y/n) " answer
+    if [ "$answer" != "y" ]; then
+        echo "Aborted"
+        exit 0
+    fi
+
+    #if dir exist then ask for confirmation
+    if [ -d "$name" ]; then
+        read -p "Directory $name already exists. Do you want to overwrite it? (y/n) " answer
+        if [ "$answer" != "y" ]; then
+            echo "Aborted"
+            exit 0
+        fi
+    fi
+
+    #create dir if not exists
+    if [ ! -d "$name" ]; then
+        echo "Creating directory $name"
+        mkdir $name
+    fi
+
+    #moving all png files to the new directory
+    mv *$name*.png $name
+
+    echo "Moved all files to $name"
+    exit 0
+
+}
+# Get the command type from the first argument
+command_type=$1
+
+# Check if the command type is "sprite-list"
+if [[ $command_type == "sprite-list" ]]; then
+    shift # Remove the first argument (command type)
+
+    # Loop through the remaining arguments
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+        --name)
+            shift # Remove the "--name" argument
+            sprite-list $1
+            ;;
+        *)
+            # Ignore other arguments
+            ;;
+        esac
+        shift # Move to the next argument
+    done
+
+else
+    echo "Usage: utils <command_type> --args"
+    echo "Available command types: $command_types"
+fi
