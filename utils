@@ -6,11 +6,14 @@
 
 #command is like utils <command_type> --args
 
-command_types=("sprite-list")
+command_types=("sprite-list" "size")
+format_types=("kb" "mb" "gb" "b")
 #sprite-list --name <name>  --src <src_dir> --dest <dest_dir>
 #src_dir is optional, if not provided, it will be the current directory
 #dest_dir is optional, if not provided, it will new directory called <name> in the current directory
-
+function args() {
+    echo "args: $@"
+}
 function sprite-list() {
     name=$1
     if [ -z "$name" ]; then
@@ -55,27 +58,77 @@ function sprite-list() {
     exit 0
 
 }
-# Get the command type from the first argument
-command_type=$1
 
-# Check if the command type is "sprite-list"
-if [[ $command_type == "sprite-list" ]]; then
-    shift # Remove the first argument (command type)
-
-    # Loop through the remaining arguments
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-        --name)
-            shift # Remove the "--name" argument
-            sprite-list $1
+#print the size of the file or directory in human readable format
+#size --file <file>  --format <kb,mb>
+function size() {
+    file=""
+    format="kb"
+    # iterate over the arguments  and args is >= 2
+    while [ "$#" -gt 1 ]; do
+        case "$1" in
+        --file)
+            file=$2
+            #check if file or directory exists
+            if [ ! -e $file ]; then
+                echo "File or dir not found"
+                exit 1
+            fi
+            shift 2
+            ;;
+        --format)
+            format=$2
+            # check if format is valid
+            if [[ ! " ${format_types[@]} " =~ " ${format} " ]]; then
+                echo "Invalid format $format. Valid formats are " ${format_types[@]}
+                exit 1
+            fi
+            shift 2
             ;;
         *)
             # Ignore other arguments
             ;;
         esac
-        shift # Move to the next argument
     done
+    if [ -z "$file" ]; then
+        echo "Usage: size --file <file>  --format <kb,mb>"
+        exit 1
+    fi
 
+    if [ -d $file ]; then
+        size=$(du -sb $file | awk '{print $1}')
+    else
+        size=$(du -b $file | awk '{print $1}')
+    fi
+
+    # bytes to kb mb gb
+    if [ "$format" == "kb" ]; then
+        size=$(echo "scale=2; $size/1024" | bc)
+    elif [ "$format" == "mb" ]; then
+        size=$(echo "scale=2; $size/1024/1024" | bc)
+    elif [ "$format" == "gb" ]; then
+        size=$(echo "scale=2; $size/1024/1024/1024" | bc)
+    else
+        #format is bytes
+        size=$size
+    fi
+
+    echo "Size of $file: $size $format"
+    exit 0
+
+}
+
+# Get the command type from the first argument
+command_type=$1
+
+
+if [[ " ${command_types[@]} " =~ " ${command_type} " ]]; then
+    shift
+    if [ "$(type -t $command_type)" = function ]; then
+        $command_type "$@"
+    else
+        echo "function with name = $command_type not found"
+    fi
 else
     echo "Usage: utils <command_type> --args"
     echo "Available command types: $command_types"

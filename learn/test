@@ -1,0 +1,30 @@
+#!/bin/bash
+
+echo "First argument: $1"
+echo "Second argument: $2"
+
+list=("fun1" "fun2" "fun3")
+
+function fun1() {
+    echo "$@"
+    echo "fun1"
+}
+
+function fun2() {
+    echo "fun2"
+}
+
+function fun3() {
+    echo "fun3"
+}
+
+# Get the command type from the first argument
+command_type=$1
+
+# run function based on the command type
+if [[ " ${list[@]} " =~ " ${command_type} " ]]; then
+    shift
+    $command_type "$@"
+else
+    echo "Command not found"
+fi

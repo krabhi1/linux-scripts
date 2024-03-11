@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# run the program and show ram , cpu , disk usage and thread cound in line by line and update every 1 second
+
+#take args from user
+#check if the user has entered the correct number of arguments
+if [ $# -ne 1 ]; then
+    echo "Usage: psr <process-name>"
+    exit 1
+fi
+
+#run process and get pid
+$1 &
+pid=$!
+echo "PID: $pid"
+ps -p $pid -o o
+# #run the loop to get the process details
+# while true; do
+#     #check if the process is still running
+#     if ! kill -0 $pid 2> /dev/null; then
+#         echo "Process has terminated"
+#         exit 0
+#     fi
+#     #get the process details
+#     ram_mb=$(ps -p $pid -o rss= | awk '{sum+=$1} END {print sum/1024}')
+#     cpu=$(ps -p $pid -o %cpu | tail -n 1)
+#     disk=$(ps -p $pid -o %cpu | tail -n 1)
+#     threads=$(ps -p $pid -o nlwp | tail -n 1)
+#     #print the process details
+    
+#     echo "ID: $pid"
+#     echo "RAM: $ram_mb MB"
+#     echo "CPU: $cpu"
+#     echo "Disk: $disk"
+#     echo "Threads: $threads"
+#     #wait for 1 second
+#     sleep 1
+# done
+    
+#     ram=$(ps -p $pid -o %mem | tail -n 1)
+#     cpu=$(ps -p $pid -o %cpu | tail -n 1)
+#     disk=$(ps -p $pid -o %cpu | tail -n 1)
+#     threads=$(ps -p $pid -o nlwp | tail -n 1)
+#     #print the process details
+#     clear
+#     echo "RAM: $ram"
+#     echo "CPU: $cpu"
+#     echo "Disk: $disk"
+#     echo "Threads: $threads"
+#     #wait for 1 second
+#     sleep 1
+# done

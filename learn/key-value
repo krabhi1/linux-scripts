@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Function to print usage information
+function print_usage {
+    echo "Usage: $0 [--key1 value1] [--key2 value2] ..."
+}
+
+# Check if there are any arguments
+if [ "$#" -eq 0 ]; then
+    echo "No arguments provided."
+    print_usage
+    exit 1
+fi
+
+# Iterate over the arguments
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+    --key1)
+        key1="$2"
+        shift 2
+        ;;
+    --key2)
+        key2="$2"
+        shift 2
+        ;;
+    # Add more cases for additional keys as needed
+
+    # If an unknown option is provided
+    *)
+        echo "Unknown option: $1"
+        print_usage
+        exit 1
+        ;;
+    esac
+done
+
+# Print the values of the keys
+echo "Key1: $key1"
+echo "Key2: $key2"
+# Print values of additional keys as needed
