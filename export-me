@@ -1,0 +1,29 @@
+#!/bin/bash
+
+#command => export-me "export KEY=VALUE"
+
+#lets write the command to a file
+
+if [ $# -ne 1 ]; then
+    echo "Usage: export-me <command>"
+    #example
+    echo "example: export-me \"export KEY=VALUE\"" 
+    exit 1
+fi
+
+
+#write the command to a file .bashrc or .zshrc 
+text="\n\n$1"
+# Check if zsh is installed
+if command -v zsh &> /dev/null
+then
+    echo -e $text >> ~/.zshrc
+    echo "Command added to .zshrc"
+fi
+
+#Check if bash is installed
+if command -v bash &> /dev/null
+then
+    echo -e $text >> ~/.bashrc
+    echo "Command added to .bashrc"
+fi
