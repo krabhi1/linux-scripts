@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#this command print ram usage of a process using smem command
+#check if smem is installed if not install it
+if ! [ -x "$(command -v smem)" ]; then
+  echo 'Error: smem is not installed.' >&2
+fi
+
+
+
+name=$1
+smem -c "pss" -P $name -kt | awk '{print $1}' | tail -n 1
