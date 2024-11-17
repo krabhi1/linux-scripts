@@ -9,4 +9,5 @@ fi
 
 
 name=$1
-smem -c "pss" -P $name -kt | awk '{print $1}' | tail -n 1
+#smem -c "pss" -P $name -kt | awk '{print $1}' | tail -n 1
+smem -ktP $name
